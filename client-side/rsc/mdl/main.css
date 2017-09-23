@@ -1,0 +1,12 @@
+.player.mdl-card {
+  width: 700px;
+}
+.player > .mdl-card__title {
+  color: #fff;
+  height: 500px;
+  background: url('../img/trtbl.jpeg') center / cover;
+}
+
+.list-control {
+  width: 300px;
+}
