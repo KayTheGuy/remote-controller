@@ -1,0 +1,13 @@
+.player {
+  width: 360px;
+  height: 360px;
+  font-family: "Roboto", Arial;
+}
+
+.list-control {
+  width: 300px;
+}
+
+.demo-list-radio {
+  display: inline;
+}
