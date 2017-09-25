@@ -19,11 +19,49 @@ const spawn = require('child_process').spawn;
 
 // chech for music folder directory
 if(process.argv.length < 3) {
+    console.log('Error: not enough argument. Provide absolute path to the music directory');
     process.exit();
 }
 
+// absolute path to music directory
 const musicDir = process.argv[2];
-console.log(musicDir);
+
+/**
+ *  create array of songs (json)  (synchronized)
+ *  currently supports: .mp3, .aif, .wav
+ */
+var songsList;
+var i = 0;
+var walkSongsSync = function(dir, songsList) {
+    let fileNames = fs.readdirSync(dir);
+    songsList = songsList || [];
+    fileNames.forEach(function(fileName) {
+        let stats = fs.lstatSync(dir + '/' + fileName);
+        if(stats.isDirectory()) {
+            songsList = walkSongsSync(dir + '/' + fileName, songsList);
+        } else if(stats.isFile()) {
+            if(fileName.match(/(.mp3|.aif|.wav)$/)) {
+                songsList.push({'id': i++,'name': fileName, 'path': dir + '/' + fileName});
+            }
+        }
+    });
+    return songsList;
+}
+
+
+
+if(fs.existsSync(musicDir)) {
+    songsList = walkSongsSync(musicDir);
+} else {
+    console.log('Error: music folder does not exist');
+    process.exit();
+}
+
+var songsListClient = []; // doesn't include the path
+songsList.forEach(function(element) {
+    songsListClient.push({'id': element.id,'name': element.name});
+});
+
 
 var server = http.createServer(function(request, response) {
     
@@ -50,7 +88,7 @@ var server = http.createServer(function(request, response) {
         var imgPath = path.join(__dirname, 'public', request.url);
         fs.createReadStream(imgPath).pipe(response);
     } else if (request.url === '/play') {
-        var playerProcess = spawn('afplay', ['song/2.mp3']);
+        var playerProcess = spawn('afplay', ['-q', '1','song/1.mp3']);
         
         setTimeout(function() {
             var playerProcess = spawn('killall', ['afplay']);
@@ -59,11 +97,13 @@ var server = http.createServer(function(request, response) {
         response.writeHead(200, {'Content-Type': 'text/plain'});
         response.end('yo2');
     } else if (request.url === '/list') {
-        console.log(request.url);
+        response.writeHead(200, {'Content-Type': 'text/js'});
+        response.end(JSON.stringify(songsListClient));
     } else {
-        console.log(request.url);
+        response.writeHead(404, {'Content-Type': 'text/plain'});
+        response.end('Error 404: Not Found');
     }
-
+    
 }).listen('8000');
 
 
