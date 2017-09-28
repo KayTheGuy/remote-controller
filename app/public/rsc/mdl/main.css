@@ -1,20 +1,31 @@
+body{
+  background: url('../img/trtbl.jpeg') center / cover;
+  opacity: 0.8;
+  font-size: 200%
+}
+.content {
+  height: auto;
+  width: 700px;
+  margin:0 auto;
+  margin-top: 50px;
+}
+
 .player.mdl-card {
-  width: 500px;
+  width: 700px;
   margin-bottom: 10px;
 }
 .player > .mdl-card__title {
   color: #fff;
-  height: 500px;
-  background: url('../img/trtbl.jpeg') center / cover;
+  height: 200px;
 }
 
 .list-control {
-  width: 500px;
-  height: 100px;
+  width: 700px;
+  height: 400px;
   margin-bottom: 10px;
   overflow: scroll;
   overflow-x: hidden;
 }
 .list {
-  width: 500px;
+  width: 700px;
 }
