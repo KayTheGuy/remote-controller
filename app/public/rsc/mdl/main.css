@@ -20,12 +20,16 @@ body{
 }
 
 .list-control {
+  overflow-x: scroll;
+  overflow: scroll;
   width: 700px;
   height: 400px;
-  margin-bottom: 10px;
-  overflow: scroll;
-  overflow-x: hidden;
 }
 .list {
   width: 700px;
+}
+
+.li-highlight {
+  font-size: 1.2rem;
+  color: rgba(8, 151, 167, 0.86);
 }
