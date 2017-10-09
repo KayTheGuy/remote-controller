@@ -12,7 +12,14 @@ var isPaused = false;
  * ...
  */
 var playerWindows = function(songId, command) {
-
+    if(command === 'PLAY') {
+        wncm_clear = child_process.exec('clever.exe clear');
+        wncm_loadplay = child_process.exec('clever.exe loadplay "' + songsList[songId].path + '"');
+    } else if(command === 'STOP') {
+        wncm_stop = child_process.exec('clever.exe stop');
+    } else if(command === 'PAUSE') {
+        wncm_pause = child_process.exec('clever.exe pause');
+    }
 }; 
 
 /**
@@ -29,12 +36,12 @@ var playerMac = function(songId, command) {
         if(!!songsList[songId].path) { // check if path to song exists
             playProcess = child_process.spawn('afplay', ['-q', '1',songsList[songId].path]);
         }
-    } else if (command === 'STOP') {
+    } else if(command === 'STOP') {
         if(!!playProcess) {
             playProcess = child_process.execSync('killall afplay');
             playProcess = 0;
         }
-    } else if (command === 'PAUSE') {
+    } else if(command === 'PAUSE') {
         if(!!playProcess) {
             if(!isPaused) { // pause the music
                 puaseProcess = child_process.execSync('kill -17 ' + playProcess.pid);
@@ -69,12 +76,12 @@ var walkSongsSync = function(dir, songsList) {
     let fileNames = fs.readdirSync(dir);
     songsList = songsList || [];
     fileNames.forEach(function(fileName) {
-        let stats = fs.lstatSync(dir + '/' + fileName);
+        let stats = fs.lstatSync(path.join(dir, fileName));
         if(stats.isDirectory()) {
-            songsList = walkSongsSync(dir + '/' + fileName, songsList);
+            songsList = walkSongsSync(path.join(dir, fileName), songsList);
         } else if(stats.isFile()) {
             if(fileName.match(/(.mp3|.aif|.wav)$/)) {
-                songsList.push({'id': i++,'name': fileName, 'path': dir + '/' + fileName});
+                songsList.push({'id': i++,'name': fileName, 'path': path.join(dir, fileName)});
             }
         }
     });
@@ -86,6 +93,11 @@ if(fs.existsSync(musicDir)) {
 } else {
     console.log('Error: music folder does not exist');
     process.exit();
+}
+
+// start winamp if Windows
+if(ostype === 'Windows_NT') {
+    winamp = child_process.execSync('start winamp');
 }
 
 var songsListClient = []; // doesn't include the path
@@ -105,36 +117,35 @@ var server = http.createServer(function(request, response) {
                     response.end('500 Internal Server Error: Unable to read the files.');
                 }
             });
-        } else if (request.url.match(/.css$/)) {
+        } else if(request.url.match(/.css$/)) {
             response.writeHead(200, {'Content-Type': 'text/css'});
             var cssPath = path.join(__dirname, 'public', request.url);
             fs.createReadStream(cssPath, 'UTF-8').pipe(response);
-        } else if (request.url.match(/.js$/)) {
+        } else if(request.url.match(/.js$/)) {
             response.writeHead(200, {'Content-Type': 'text/js'});
             var jsPath = path.join(__dirname, 'public', request.url);
             fs.createReadStream(jsPath).pipe(response);
-        } else if (request.url.match(/.jpeg$/)) {
+        } else if(request.url.match(/.jpeg$/)) {
             response.writeHead(200, {'Content-Type': 'img/jpeg'});
             var imgPath = path.join(__dirname, 'public', request.url);
             fs.createReadStream(imgPath).pipe(response);
-        } else if (request.url.match(/^\/play\/(\d)+$/g)) {
+        } else if(request.url.match(/^\/play\/(\d)+$/g)) {
             let player = osPlayerPair[ostype];
             let songId = request.url.slice(6);
             player(songId, 'PLAY');
             response.writeHead(200, {'Content-Type': 'text/plain'});
             response.end();
-        } else if (request.url === '/stop') {
+        } else if(request.url === '/stop') {
             let player = osPlayerPair[ostype];
             player(null, 'STOP');
             response.writeHead(200, {'Content-Type': 'text/plain'});
             response.end();
-        } else if (request.url === '/pause') {
+        } else if(request.url === '/pause') {
             let player = osPlayerPair[ostype];
-            console.log(player);
             player(null, 'PAUSE');
             response.writeHead(200, {'Content-Type': 'text/plain'});
             response.end();
-        } else if (request.url === '/list') {
+        } else if(request.url === '/list') {
             response.writeHead(200, {'Content-Type': 'text/js'});
             response.end(JSON.stringify(songsListClient));
         }

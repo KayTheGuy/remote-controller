@@ -1,0 +1,17 @@
+{
+  "name": "remote_controller",
+  "version": "1.0.0",
+  "description": "A simple music player for Mac/Windows with a web API to control the player (play/pause/stop/next/prev)",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "\u0016\u0016\u0016https://github.com/kayhandehghani/Remote-Controller/"
+  },
+  "author": "Kayhan Dehghani",
+  "license": "Apache-2.0",
+  "dependencies": {}
+}
